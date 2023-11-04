@@ -242,7 +242,7 @@ export const downloadEbook = CatchAsyncError(
 
 
 
-      const isCacheExist = await redis.get(ebookId);
+      const isCacheExist: any = await redis.get(ebookId);
 
       if (false) {
         const course = JSON.parse(isCacheExist);
@@ -290,7 +290,7 @@ export const getSingleEbook = CatchAsyncError(
 
       const ebookId = req.params.id;
 
-      const isCacheExist = await redis.get(ebookId);
+      const isCacheExist: any = await redis.get(ebookId);
 
       if (false) {
         const course = JSON.parse(isCacheExist);
@@ -323,7 +323,7 @@ export const getSingleEbookAdmin = CatchAsyncError(
 
       const ebookId = req.params.id;
 
-      const isCacheExist = await redis.get(ebookId);
+      const isCacheExist: any = await redis.get(ebookId);
 
       if (false) {
         const course = JSON.parse(isCacheExist);

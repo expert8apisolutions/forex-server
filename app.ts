@@ -11,7 +11,6 @@ import notificationRouter from "./routes/notification.route";
 import analyticsRouter from "./routes/analytics.route";
 import layoutRouter from "./routes/layout.route";
 import { rateLimit } from 'express-rate-limit'
-import { exampleCookie } from "./utils/jwt";
 import ebookModel from "./models/ebook.model";
 import ebookRouter from "./routes/ebook.route";
 
