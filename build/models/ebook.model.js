@@ -24,23 +24,55 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
-const orderSchema = new mongoose_1.Schema({
-    courseId: {
+const EbookSchema = new mongoose_1.Schema({
+    name: {
         type: String,
-        required: true
+        required: true,
     },
-    userId: {
+    filename: {
         type: String,
-        required: true
+        required: true,
     },
-    type: {
+    description: {
         type: String,
-        required: true
+        required: true,
     },
-    payment_info: {
-        type: Object,
-        // required: true
+    price: {
+        type: Number,
+        required: true,
+    },
+    estimatedPrice: {
+        type: Number,
+    },
+    totalPage: {
+        type: Number,
+    },
+    fileType: {
+        type: String,
+    },
+    totalSizeMB: {
+        type: Number,
+    },
+    thumbnail: {
+        public_id: {
+            type: String,
+        },
+        url: {
+            type: String,
+        },
+    },
+    linkDownload: {
+        public_id: {
+            type: String,
+        },
+        url: {
+            type: String,
+        },
+    },
+    purchased: {
+        type: Number,
+        default: 0,
     },
 }, { timestamps: true });
-const OrderModel = mongoose_1.default.model('Order', orderSchema);
-exports.default = OrderModel;
+const ebookModel = mongoose_1.default.model("Ebook", EbookSchema);
+exports.default = ebookModel;

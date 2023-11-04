@@ -30,10 +30,12 @@ exports.isAutheticated = (0, catchAsyncErrors_1.CatchAsyncError)(async (req, res
     }
     else {
         const user = await redis_1.redis.get(decoded.id);
+        // const user: any = await userModel.findById(decoded.id)
         if (!user) {
             return next(new ErrorHandler_1.default("Please login to access this resource", 400));
         }
         req.user = JSON.parse(user);
+        // req.user = user
         next();
     }
 });

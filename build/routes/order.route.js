@@ -8,6 +8,7 @@ const auth_1 = require("../middleware/auth");
 const order_controller_1 = require("../controllers/order.controller");
 const orderRouter = express_1.default.Router();
 orderRouter.post("/create-order", auth_1.isAutheticated, order_controller_1.createOrder);
+orderRouter.post("/create-order-ebook", auth_1.isAutheticated, order_controller_1.createOrderEbook);
 orderRouter.get("/get-orders", auth_1.isAutheticated, (0, auth_1.authorizeRoles)("admin"), order_controller_1.getAllOrders);
 orderRouter.get("/payment/stripepublishablekey", order_controller_1.sendStripePublishableKey);
 orderRouter.post("/payment", auth_1.isAutheticated, order_controller_1.newPayment);

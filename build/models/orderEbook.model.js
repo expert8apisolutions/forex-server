@@ -25,15 +25,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const orderSchema = new mongoose_1.Schema({
-    courseId: {
+    ebookId: {
         type: String,
         required: true
     },
     userId: {
-        type: String,
-        required: true
-    },
-    type: {
         type: String,
         required: true
     },
@@ -42,5 +38,5 @@ const orderSchema = new mongoose_1.Schema({
         // required: true
     },
 }, { timestamps: true });
-const OrderModel = mongoose_1.default.model('Order', orderSchema);
-exports.default = OrderModel;
+const OrderEbookModel = mongoose_1.default.model('order_ebook', orderSchema);
+exports.default = OrderEbookModel;

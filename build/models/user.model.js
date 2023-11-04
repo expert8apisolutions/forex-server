@@ -46,6 +46,11 @@ const userSchema = new mongoose_1.default.Schema({
             courseId: String,
         },
     ],
+    ebooks: [
+        {
+            ebookId: String,
+        },
+    ],
 }, { timestamps: true });
 // Hash Password before saving
 userSchema.pre("save", async function (next) {
