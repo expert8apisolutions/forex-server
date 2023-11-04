@@ -7,11 +7,12 @@ exports.authorizeRoles = exports.isAutheticated = void 0;
 const catchAsyncErrors_1 = require("./catchAsyncErrors");
 const ErrorHandler_1 = __importDefault(require("../utils/ErrorHandler"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const redis_1 = require("../utils/redis");
 const user_controller_1 = require("../controllers/user.controller");
+const user_model_1 = __importDefault(require("../models/user.model"));
 // authenticated user
 exports.isAutheticated = (0, catchAsyncErrors_1.CatchAsyncError)(async (req, res, next) => {
     const access_token = req.cookies.access_token;
+    console.log("access_token ", access_token);
     if (!access_token) {
         return next(new ErrorHandler_1.default("Please login to access this resource", 400));
     }
@@ -29,13 +30,13 @@ exports.isAutheticated = (0, catchAsyncErrors_1.CatchAsyncError)(async (req, res
         }
     }
     else {
-        const user = await redis_1.redis.get(decoded.id);
-        // const user: any = await userModel.findById(decoded.id)
+        //const user = await redis.get(decoded.id);
+        const user = await user_model_1.default.findById(decoded.id);
         if (!user) {
             return next(new ErrorHandler_1.default("Please login to access this resource", 400));
         }
-        req.user = JSON.parse(user);
-        // req.user = user
+        // req.user = JSON.parse(user);
+        req.user = user;
         next();
     }
 });
