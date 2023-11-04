@@ -2,6 +2,7 @@ import express from "express";
 import { authorizeRoles, isAutheticated } from "../middleware/auth";
 import {
   createOrder,
+  createOrderEbook,
   getAllOrders,
   newPayment,
   sendStripePublishableKey,
@@ -9,6 +10,8 @@ import {
 const orderRouter = express.Router();
 
 orderRouter.post("/create-order", isAutheticated, createOrder);
+
+orderRouter.post("/create-order-ebook", isAutheticated, createOrderEbook);
 
 orderRouter.get(
   "/get-orders",
