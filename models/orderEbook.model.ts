@@ -1,23 +1,18 @@
 import mongoose, {Document,Model,Schema} from "mongoose";
 
 
-export interface IOrder extends Document{
-    courseId: string;
+export interface IOrderEbook extends Document{
+    ebookId: string;
     userId?:string;
-    type?:string;
     payment_info: object;
 }
 
-const orderSchema = new Schema<IOrder>({
-    courseId: {
+const orderSchema = new Schema<IOrderEbook>({
+    ebookId: {
      type: String,
      required: true
     },
     userId:{
-        type: String,
-        required: true
-    },
-    type:{
         type: String,
         required: true
     },
@@ -27,6 +22,6 @@ const orderSchema = new Schema<IOrder>({
     },
 },{timestamps: true});
 
-const OrderModel: Model<IOrder> = mongoose.model('Order',orderSchema);
+const OrderEbookModel: Model<IOrderEbook> = mongoose.model('order_ebook',orderSchema);
 
-export default OrderModel;
+export default OrderEbookModel;

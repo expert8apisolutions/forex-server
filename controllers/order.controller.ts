@@ -8,8 +8,9 @@ import path from "path";
 import ejs from "ejs";
 import sendMail from "../utils/sendMail";
 import NotificationModel from "../models/notification.Model";
-import { getAllOrdersService, newOrder } from "../services/order.service";
+import { getAllOrdersService, newOrder, newOrderEbook } from "../services/order.service";
 import { redis } from "../utils/redis";
+import ebookModel, { IEbook } from "../models/ebook.model";
 require("dotenv").config();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
@@ -110,6 +111,103 @@ export const createOrder = CatchAsyncError(
   }
 );
 
+// create order Ebook
+export const createOrderEbook = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { ebookId, payment_info } = req.body as any;
+
+      if (payment_info) {
+        if ("id" in payment_info) {
+          const paymentIntentId = payment_info.id;
+          const paymentIntent = await stripe.paymentIntents.retrieve(
+            paymentIntentId
+          );
+
+          if (paymentIntent.status !== "succeeded") {
+            return next(new ErrorHandler("Payment not authorized!", 400));
+          }
+        }
+      }
+
+      const user = await userModel.findById(req.user?._id);
+
+      const courseExistInUser = user?.ebooks.some(
+        (ebook: any) => ebook._id.toString() === ebookId
+      );
+
+      if (courseExistInUser) {
+        return next(
+          new ErrorHandler("You have already purchased this ebook", 400)
+        );
+      }
+
+      const ebook:IEbook | null = await ebookModel.findById(ebookId);
+
+      if (!ebook) {
+        return next(new ErrorHandler("ebook not found", 404));
+      }
+
+      const data: any = {
+        ebookId: ebook._id,
+        userId: user?._id,
+        payment_info,
+      };
+
+      const mailData = {
+        order: {
+          _id: ebook._id.toString().slice(0, 6),
+          name: ebook.name,
+          price: ebook.price,
+          date: new Date().toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }),
+        },
+      };
+
+      const html = await ejs.renderFile(
+        path.join(__dirname, "../mails/order-confirmation.ejs"),
+        { order: mailData }
+      );
+
+      try {
+        if (user) {
+          await sendMail({
+            email: user.email,
+            subject: "Order Confirmation",
+            template: "order-confirmation.ejs",
+            data: mailData,
+          });
+        }
+      } catch (error: any) {
+        return next(new ErrorHandler(error.message, 500));
+      }
+
+      user?.ebooks.push(ebook?._id);
+
+      // await redis.set(req.user?._id, JSON.stringify(user));
+
+      await user?.save();
+
+      await NotificationModel.create({
+        user: user?._id,
+        title: "New Order",
+        message: `You have a new order from ${ebook?.name}`,
+      });
+
+      ebook.purchased = ebook.purchased + 1;
+
+      await ebook.save();
+
+      newOrderEbook(data, res, next);
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  }
+);
+
 // get All orders --- only for admin
 export const getAllOrders = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -134,9 +232,10 @@ export const sendStripePublishableKey = CatchAsyncError(
 export const newPayment = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+      
       const myPayment = await stripe.paymentIntents.create({
         amount: req.body.amount,
-        currency: "THB",
+        currency: "thb",
         metadata: {
           company: "E-Learning",
         },
@@ -150,6 +249,7 @@ export const newPayment = CatchAsyncError(
         client_secret: myPayment.client_secret,
       });
     } catch (error: any) {
+      console.log("🚀 ~ file: order.controller.ts:155 ~ error:", error)
       return next(new ErrorHandler(error.message, 500));
     }
   }

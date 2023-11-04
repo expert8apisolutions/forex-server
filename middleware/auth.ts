@@ -4,6 +4,7 @@ import ErrorHandler from "../utils/ErrorHandler";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { redis } from "../utils/redis";
 import { updateAccessToken } from "../controllers/user.controller";
+import userModel from "../models/user.model";
 
 // authenticated user
 export const isAutheticated = CatchAsyncError(
@@ -31,6 +32,7 @@ export const isAutheticated = CatchAsyncError(
       }
     } else {
       const user = await redis.get(decoded.id);
+      // const user: any = await userModel.findById(decoded.id)
 
       if (!user) {
         return next(
@@ -39,6 +41,7 @@ export const isAutheticated = CatchAsyncError(
       }
 
       req.user = JSON.parse(user);
+      // req.user = user
 
       next();
     }

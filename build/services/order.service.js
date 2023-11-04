@@ -3,12 +3,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAllOrdersService = exports.newOrder = void 0;
+exports.getAllOrdersService = exports.newOrderEbook = exports.newOrder = void 0;
 const catchAsyncErrors_1 = require("../middleware/catchAsyncErrors");
 const order_Model_1 = __importDefault(require("../models/order.Model"));
+const orderEbook_model_1 = __importDefault(require("../models/orderEbook.model"));
 // create new order
 exports.newOrder = (0, catchAsyncErrors_1.CatchAsyncError)(async (data, res) => {
     const order = await order_Model_1.default.create(data);
+    res.status(201).json({
+        succcess: true,
+        order,
+    });
+});
+exports.newOrderEbook = (0, catchAsyncErrors_1.CatchAsyncError)(async (data, res) => {
+    const order = await orderEbook_model_1.default.create(data);
     res.status(201).json({
         succcess: true,
         order,

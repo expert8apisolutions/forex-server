@@ -11,6 +11,11 @@ import notificationRouter from "./routes/notification.route";
 import analyticsRouter from "./routes/analytics.route";
 import layoutRouter from "./routes/layout.route";
 import { rateLimit } from 'express-rate-limit'
+import ebookModel from "./models/ebook.model";
+import ebookRouter from "./routes/ebook.route";
+
+
+
 
 // body parser
 app.use(express.json({ limit: "50mb" }));
@@ -38,14 +43,14 @@ const limiter = rateLimit({
 app.use(
   "/api/v1",
   userRouter,
+  ebookRouter,
   orderRouter,
   courseRouter,
   notificationRouter,
   analyticsRouter,
-  layoutRouter
+  layoutRouter,
 );
 
-// testing api
 app.get("/test", (req: Request, res: Response, next: NextFunction) => {
   res.status(200).json({
     succcess: true,

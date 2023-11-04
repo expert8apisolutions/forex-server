@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.newPayment = exports.sendStripePublishableKey = exports.getAllOrders = exports.createOrder = void 0;
+exports.newPayment = exports.sendStripePublishableKey = exports.getAllOrders = exports.createOrderEbook = exports.createOrder = void 0;
 const catchAsyncErrors_1 = require("../middleware/catchAsyncErrors");
 const ErrorHandler_1 = __importDefault(require("../utils/ErrorHandler"));
 const user_model_1 = __importDefault(require("../models/user.model"));
@@ -14,6 +14,7 @@ const sendMail_1 = __importDefault(require("../utils/sendMail"));
 const notification_Model_1 = __importDefault(require("../models/notification.Model"));
 const order_service_1 = require("../services/order.service");
 const redis_1 = require("../utils/redis");
+const ebook_model_1 = __importDefault(require("../models/ebook.model"));
 require("dotenv").config();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 // create order
@@ -85,6 +86,75 @@ exports.createOrder = (0, catchAsyncErrors_1.CatchAsyncError)(async (req, res, n
         return next(new ErrorHandler_1.default(error.message, 500));
     }
 });
+// create order Ebook
+exports.createOrderEbook = (0, catchAsyncErrors_1.CatchAsyncError)(async (req, res, next) => {
+    try {
+        const { ebookId, payment_info } = req.body;
+        if (payment_info) {
+            if ("id" in payment_info) {
+                const paymentIntentId = payment_info.id;
+                const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+                if (paymentIntent.status !== "succeeded") {
+                    return next(new ErrorHandler_1.default("Payment not authorized!", 400));
+                }
+            }
+        }
+        const user = await user_model_1.default.findById(req.user?._id);
+        const courseExistInUser = user?.ebooks.some((ebook) => ebook._id.toString() === ebookId);
+        if (courseExistInUser) {
+            return next(new ErrorHandler_1.default("You have already purchased this ebook", 400));
+        }
+        const ebook = await ebook_model_1.default.findById(ebookId);
+        if (!ebook) {
+            return next(new ErrorHandler_1.default("ebook not found", 404));
+        }
+        const data = {
+            ebookId: ebook._id,
+            userId: user?._id,
+            payment_info,
+        };
+        const mailData = {
+            order: {
+                _id: ebook._id.toString().slice(0, 6),
+                name: ebook.name,
+                price: ebook.price,
+                date: new Date().toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                }),
+            },
+        };
+        const html = await ejs_1.default.renderFile(path_1.default.join(__dirname, "../mails/order-confirmation.ejs"), { order: mailData });
+        try {
+            if (user) {
+                await (0, sendMail_1.default)({
+                    email: user.email,
+                    subject: "Order Confirmation",
+                    template: "order-confirmation.ejs",
+                    data: mailData,
+                });
+            }
+        }
+        catch (error) {
+            return next(new ErrorHandler_1.default(error.message, 500));
+        }
+        user?.ebooks.push(ebook?._id);
+        // await redis.set(req.user?._id, JSON.stringify(user));
+        await user?.save();
+        await notification_Model_1.default.create({
+            user: user?._id,
+            title: "New Order",
+            message: `You have a new order from ${ebook?.name}`,
+        });
+        ebook.purchased = ebook.purchased + 1;
+        await ebook.save();
+        (0, order_service_1.newOrderEbook)(data, res, next);
+    }
+    catch (error) {
+        return next(new ErrorHandler_1.default(error.message, 500));
+    }
+});
 // get All orders --- only for admin
 exports.getAllOrders = (0, catchAsyncErrors_1.CatchAsyncError)(async (req, res, next) => {
     try {
@@ -105,7 +175,7 @@ exports.newPayment = (0, catchAsyncErrors_1.CatchAsyncError)(async (req, res, ne
     try {
         const myPayment = await stripe.paymentIntents.create({
             amount: req.body.amount,
-            currency: "THB",
+            currency: "thb",
             metadata: {
                 company: "E-Learning",
             },
@@ -119,6 +189,7 @@ exports.newPayment = (0, catchAsyncErrors_1.CatchAsyncError)(async (req, res, ne
         });
     }
     catch (error) {
+        console.log("🚀 ~ file: order.controller.ts:155 ~ error:", error);
         return next(new ErrorHandler_1.default(error.message, 500));
     }
 });
