@@ -14,10 +14,12 @@ exports.isAutheticated = (0, catchAsyncErrors_1.CatchAsyncError)(async (req, res
     const access_token = req.cookies.access_token;
     console.log("access_token ", access_token);
     if (!access_token) {
+        console.log('xxx1');
         return next(new ErrorHandler_1.default("Please login to access this resource", 400));
     }
     const decoded = jsonwebtoken_1.default.decode(access_token);
     if (!decoded) {
+        console.log('xxx2');
         return next(new ErrorHandler_1.default("access token is not valid", 400));
     }
     // check if the access token is expired
@@ -26,13 +28,17 @@ exports.isAutheticated = (0, catchAsyncErrors_1.CatchAsyncError)(async (req, res
             await (0, user_controller_1.updateAccessToken)(req, res, next);
         }
         catch (error) {
+            console.log(error);
+            console.log('xxx3');
             return next(error);
         }
     }
     else {
+        console.log('xxx4');
         //const user = await redis.get(decoded.id);
         const user = await user_model_1.default.findById(decoded.id);
         if (!user) {
+            console.log('xxx5');
             return next(new ErrorHandler_1.default("Please login to access this resource", 400));
         }
         // req.user = JSON.parse(user);
