@@ -10,8 +10,7 @@ import userModel from "../models/user.model";
 export const isAutheticated = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     const access_token = req.cookies.access_token as string;
-    console.log("access_token ",access_token);
-    
+
     if (!access_token) {
       return next(
         new ErrorHandler("Please login to access this resource", 400)
@@ -32,8 +31,8 @@ export const isAutheticated = CatchAsyncError(
         return next(error);
       }
     } else {
-      //const user = await redis.get(decoded.id);
-       const user: any = await userModel.findById(decoded.id)
+      const user = await redis.get(decoded.id);
+      // const user: any = await userModel.findById(decoded.id)
 
       if (!user) {
         return next(
@@ -41,8 +40,8 @@ export const isAutheticated = CatchAsyncError(
         );
       }
 
-     // req.user = JSON.parse(user);
-      req.user = user
+      req.user = JSON.parse(user);
+      // req.user = user
 
       next();
     }
