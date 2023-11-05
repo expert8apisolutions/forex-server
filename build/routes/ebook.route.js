@@ -13,6 +13,7 @@ ebookRouter.get("/get-ebook/:id", ebook_controller_1.getSingleEbook);
 ebookRouter.get("/get-admin-ebook/:id", auth_1.isAutheticated, (0, auth_1.authorizeRoles)("admin"), ebook_controller_1.getSingleEbookAdmin);
 ebookRouter.get("/get-ebook/:id/download", auth_1.isAutheticated, ebook_controller_1.downloadEbook);
 ebookRouter.post("/add-ebook-user", auth_1.isAutheticated, (0, auth_1.authorizeRoles)("admin"), ebook_controller_1.addEbookToUser);
+ebookRouter.get("/get-ebook-owner", auth_1.isAutheticated);
 ebookRouter.put("/edit-ebook/:id", auth_1.isAutheticated, (0, auth_1.authorizeRoles)("admin"), ebook_controller_1.editEbook);
 // courseRouter.get("/get-courses", getAllCourses);
 // courseRouter.get(
