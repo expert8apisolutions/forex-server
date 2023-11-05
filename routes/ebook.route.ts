@@ -1,20 +1,4 @@
 import express from "express";
-import {
-  addAnwser,
-  addCourseToUser,
-  addQuestion,
-  addReplyToReview,
-  addReview,
-  deleteCourse,
-  editCourse,
-  generateVideoUrl,
-  getAdminAllCourses,
-  getAllCourses,
-  getCourseByUser,
-  getSingleCourse,
-  uploadCourse,
-} from "../controllers/course.controller";
-
 import { authorizeRoles, isAutheticated } from "../middleware/auth";
 import { addEbookToUser, deleteEbook, downloadEbook, editEbook, getAllBoook, getSingleEbook, getSingleEbookAdmin, uploadEbook } from "../controllers/ebook.controller";
 const ebookRouter = express.Router();
@@ -38,6 +22,8 @@ getSingleEbookAdmin);
 ebookRouter.get("/get-ebook/:id/download", isAutheticated, downloadEbook);
 
 ebookRouter.post("/add-ebook-user", isAutheticated, authorizeRoles("admin"), addEbookToUser);
+
+ebookRouter.get("/get-ebook-owner", isAutheticated, );
 
 ebookRouter.put(
   "/edit-ebook/:id",

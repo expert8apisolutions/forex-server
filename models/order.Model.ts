@@ -4,7 +4,6 @@ import mongoose, {Document,Model,Schema} from "mongoose";
 export interface IOrder extends Document{
     courseId: string;
     userId?:string;
-    type?:string;
     payment_info: object;
 }
 
@@ -14,10 +13,6 @@ const orderSchema = new Schema<IOrder>({
      required: true
     },
     userId:{
-        type: String,
-        required: true
-    },
-    type:{
         type: String,
         required: true
     },
