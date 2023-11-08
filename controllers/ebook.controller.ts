@@ -239,9 +239,6 @@ export const downloadEbook = CatchAsyncError(
         );
       }
 
-
-
-
       const isCacheExist: any = await redis.get(ebookId);
 
       if (false) {
@@ -265,6 +262,7 @@ export const downloadEbook = CatchAsyncError(
           // Set the appropriate headers for a PDF response
           res.setHeader("Content-Type", "application/pdf");
           res.setHeader("Content-Disposition", 'inline; filename="example-file.pdf"');
+          res.set('Cache-Control', 'public, max-age=604800, s-maxage=604800');
 
           // Pipe the response directly to the client
           response.data.pipe(res);
