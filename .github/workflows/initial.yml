@@ -1,1 +1,48 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
 
+name: set up project
+
+on:
+   workflow_dispatch:
+    # Inputs the workflow accepts.
+    inputs:
+      name:
+        # Friendly description to be shown in the UI instead of 'name'
+        description: 'name of app'
+        default: 'new-forex-api'
+        # Default value if no value is explicitly provided
+        required: true
+        # The data type of the input
+        type: string
+        
+      app_port:
+        # Friendly description to be shown in the UI instead of 'name'
+        description: 'running app to port'
+        default: '3999'
+        # Default value if no value is explicitly provided
+        required: true
+        # The data type of the input
+        type: string
+
+jobs:
+  build:
+
+    runs-on: self-hosted
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - run: npm ci
+    - run: npm run build --if-present
+    - run: PORT="${{ inputs.app_port }}" pm2 start  ./build/server.js --name "${{ inputs.name }}"
+    - run: curl 127.0.0.1:"${{ inputs.app_port }}"
