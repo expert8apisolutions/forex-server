@@ -10,7 +10,7 @@ on:
       name:
         # Friendly description to be shown in the UI instead of 'name'
         description: 'name of app'
-        default: 'new-forex-api'
+        default: 'forex-api'
         # Default value if no value is explicitly provided
         required: true
         # The data type of the input
@@ -19,7 +19,7 @@ on:
       app_port:
         # Friendly description to be shown in the UI instead of 'name'
         description: 'running app to port'
-        default: '3999'
+        default: '3203'
         # Default value if no value is explicitly provided
         required: true
         # The data type of the input
