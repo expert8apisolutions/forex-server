@@ -11,8 +11,8 @@ import notificationRouter from "./routes/notification.route";
 import analyticsRouter from "./routes/analytics.route";
 import layoutRouter from "./routes/layout.route";
 import { rateLimit } from 'express-rate-limit'
-import ebookModel from "./models/ebook.model";
 import ebookRouter from "./routes/ebook.route";
+import blogRouter from "./routes/blog.route";
 
 
 
@@ -49,6 +49,7 @@ app.use(
   notificationRouter,
   analyticsRouter,
   layoutRouter,
+  blogRouter,
 );
 
 app.get("/test", (req: Request, res: Response, next: NextFunction) => {
