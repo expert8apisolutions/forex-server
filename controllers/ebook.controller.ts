@@ -79,6 +79,8 @@ export const addEbookToUser = CatchAsyncError(
       }
 
       user?.ebooks.push(ebook?._id);
+      
+      await redis.set(user_id, JSON.stringify(user));
 
       await user?.save();
 
@@ -238,6 +240,9 @@ export const downloadEbook = CatchAsyncError(
           new ErrorHandler("You are not eligible to access this book", 404)
         );
       }
+
+
+
 
       const isCacheExist: any = await redis.get(ebookId);
 

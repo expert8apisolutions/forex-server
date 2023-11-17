@@ -73,9 +73,11 @@ export const addCourseToUser = CatchAsyncError(
       } catch (error: any) {
         return next(new ErrorHandler(error.message, 500));
       }
-
+      
       user?.courses.push(course?._id);
 
+      await redis.set(user_id, JSON.stringify(user));
+      
       await user?.save();
 
       await NotificationModel.create({

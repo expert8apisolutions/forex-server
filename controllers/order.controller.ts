@@ -18,9 +18,10 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 export const createOrder = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { courseId, payment_info } = req.body as IOrder;
+      const { courseId, payment_info, isFree } = req.body;
+      const userId = req.user?._id
 
-      if (payment_info) {
+      if (payment_info && !isFree) {
         if ("id" in payment_info) {
           const paymentIntentId = payment_info.id;
           const paymentIntent = await stripe.paymentIntents.retrieve(
@@ -33,7 +34,7 @@ export const createOrder = CatchAsyncError(
         }
       }
 
-      const user = await userModel.findById(req.user?._id);
+      const user = await userModel.findById(userId);
 
       const courseExistInUser = user?.courses.some(
         (course: any) => course._id.toString() === courseId
@@ -45,16 +46,20 @@ export const createOrder = CatchAsyncError(
         );
       }
 
-      const course:ICourse | null = await CourseModel.findById(courseId);
+      const course: ICourse | null = await CourseModel.findById(courseId);
 
       if (!course) {
         return next(new ErrorHandler("Course not found", 404));
       }
 
+      if (isFree && course.price != 0) {
+          return next(new ErrorHandler("Course not Free It price " + course.price, 400));
+      }
+
       const data: any = {
         courseId: course._id,
         userId: user?._id,
-        payment_info,
+        payment_info: isFree ? {} : payment_info,
       };
 
       const mailData = {
@@ -115,9 +120,9 @@ export const createOrder = CatchAsyncError(
 export const createOrderEbook = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { ebookId, payment_info } = req.body as any;
+      const { ebookId, payment_info, isFree } = req.body as any;
 
-      if (payment_info) {
+      if (payment_info && !isFree) {
         if ("id" in payment_info) {
           const paymentIntentId = payment_info.id;
           const paymentIntent = await stripe.paymentIntents.retrieve(
@@ -148,10 +153,14 @@ export const createOrderEbook = CatchAsyncError(
         return next(new ErrorHandler("ebook not found", 404));
       }
 
+      if (isFree && ebook.price != 0) {
+        return next(new ErrorHandler("Ebook not Free It price " + ebook.price, 400));
+    }
+
       const data: any = {
         ebookId: ebook._id,
         userId: user?._id,
-        payment_info,
+        payment_info: isFree ? {} : payment_info,
       };
 
       const mailData = {
@@ -187,7 +196,7 @@ export const createOrderEbook = CatchAsyncError(
 
       user?.ebooks.push(ebook?._id);
 
-      // await redis.set(req.user?._id, JSON.stringify(user));
+      await redis.set(req.user?._id, JSON.stringify(user));
 
       await user?.save();
 
