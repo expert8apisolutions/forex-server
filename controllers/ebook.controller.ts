@@ -176,7 +176,7 @@ export const editEbook = CatchAsyncError(
       } else {
         data.linkDownload = {
           public_id: ebookData.linkDownload.public_id,
-          url: ebookData.linkDownload.secure_url,
+          url: ebookData.linkDownload.url,
         }
       }
 
@@ -199,7 +199,7 @@ export const editEbook = CatchAsyncError(
       } else {
         data.thumbnail = {
           public_id: ebookData.thumbnail.public_id,
-          url: ebookData.thumbnail.secure_url,
+          url: ebookData.thumbnail.url,
         };
       }
 
